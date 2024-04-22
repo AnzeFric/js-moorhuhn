@@ -3,7 +3,7 @@ import { useWindowSize } from 'usehooks-ts'
 import levels from './levels';
 import Game from './logic';
 import LevelType from '../types/levelType';
-
+import MobType from '../types/mobType';
 
 const GameEnvironment = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -12,9 +12,42 @@ const GameEnvironment = () => {
         color: "white",
         image: null
     });
-    // const { mobs, spawnMob, updateMobs, loadLevel } = useMobs(); // No need to provide initialMobs
+    // const { mobs, spawnMob, updateMobs, loadLevel } = useMobs(); 
 
     const gameRef = useRef(new Game());
+
+
+    function drawSprite(ctx: CanvasRenderingContext2D, mob: MobType) {
+        const now = performance.now();
+
+        if (mob.sprite && mob.sprite.image) {
+            const sprite = mob.sprite;
+            const frameWidth = sprite.image.width / sprite.totalFrames;
+            const frameHeight = sprite.image.height;
+
+            if (!sprite.lastUpdate) sprite.lastUpdate = now;
+
+            const frameRate = Math.max(sprite.frameRate, 1);
+            const frameDelay = 1000 / frameRate;
+
+            if (now - sprite.lastUpdate > frameDelay) {
+                sprite.frameIndex = (sprite.frameIndex + 1) % sprite.totalFrames;
+                sprite.lastUpdate = now;
+            }
+            const frameX = sprite.frameIndex * frameWidth;
+
+
+            ctx.drawImage(
+                sprite.image,
+                frameX, 0,
+                frameWidth, frameHeight,
+                mob.x, mob.y,
+                mob.size, mob.size
+            );
+        }
+    }
+
+
     useEffect(() => {
 
         const canvas = canvasRef.current;
@@ -22,9 +55,9 @@ const GameEnvironment = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         const game = gameRef.current;
-        const selectedLevel: LevelType = levels.level1;
-        // game.onStateChange(setMobs);
 
+        // game.onStateChange(setMobs);
+        const selectedLevel: LevelType = levels.level1;
         game.loadLevel(selectedLevel);
 
         setbackground({
@@ -56,8 +89,13 @@ const GameEnvironment = () => {
 
             //izriši vsako kokoš
             game.mobs.forEach((mob: any) => {
-                ctx.fillStyle = mob.color;
-                ctx.fillRect(mob.x, mob.y, mob.size, mob.size);
+                if (mob.sprite) {
+                    drawSprite(ctx, mob);
+                }
+                else {
+                    ctx.fillStyle = mob.color;
+                    ctx.fillRect(mob.x, mob.y, mob.size, mob.size);
+                }
             });
 
 
@@ -100,7 +138,9 @@ const GameEnvironment = () => {
                 width: '100%',
                 height: '100%',
                 backgroundColor: background.image ? "transparent" : background.color,
-                backgroundImage: background.image ? `url(${background.image})` : 'none'
+                backgroundImage: background.image ? `url(${background.image})` : 'none',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat'
 
             }}></canvas>
     );

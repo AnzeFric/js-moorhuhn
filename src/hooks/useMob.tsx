@@ -22,7 +22,6 @@ const useMobs = (initialMobs: Mob[] = []) => {
             y: mob.y
         }));
         mobsRef.current = updatedMobs;
-        // console.log('Mobs updated', mobsRef.current);
     }, []);
 
     const loadLevel = useCallback((mobs: Mob[]) => {

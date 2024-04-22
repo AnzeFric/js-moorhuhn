@@ -15,16 +15,26 @@ class Game {
   }
 
   spawnMob(mob: MobType): void {
+    if (mob.sprite) {
+      this.loadMobSprite(mob);
+    }
     this.mobs.push(mob);
     this.notify();
   }
 
   updateMobs(deltaTime: number): void {
-    this.mobs = this.mobs.map((mob) => ({
-      ...mob,
-      x: mob.x + mob.speed * deltaTime,
-      y: mob.y,
-    }));
+    this.mobs = this.mobs.map((mob: MobType) => {
+      const updatedMob = {
+        ...mob,
+        x: mob.x + mob.speed * deltaTime,
+        y: mob.y,
+      };
+
+      if (mob.sprite) {
+        // this.updateAnimationFrame(mob.sprite, deltaTime);
+      }
+      return updatedMob;
+    });
 
     this.notify();
   }
@@ -35,9 +45,22 @@ class Game {
 
   loadLevel(level: LevelType): void {
     this.background = level.background;
-
-    this.mobs = level.mobs;
+    this.mobs = level.mobs.map((mob: MobType) => {
+      this.loadMobSprite(mob);
+      return mob;
+    });
     this.notify();
+  }
+
+  private loadMobSprite(mob: MobType): void {
+    if (!mob.sprite?.spriteUrl) return;
+    const image = new Image();
+    image.onload = () => {
+      if (mob.sprite) {
+        mob.sprite.image = image;
+      }
+    };
+    image.src = mob.sprite.spriteUrl;
   }
 
   private notify(): void {
