@@ -89,9 +89,11 @@ const GameEnvironment = () => {
 
             //izriši vsako kokoš
             game.mobs.forEach((mob: any) => {
+                //če ima kokoš grafiko jo izrišem in animiram
                 if (mob.sprite) {
                     drawSprite(ctx, mob);
                 }
+                //če nima grafike jo izrišem kot kvadrat z barvo
                 else {
                     ctx.fillStyle = mob.color;
                     ctx.fillRect(mob.x, mob.y, mob.size, mob.size);
