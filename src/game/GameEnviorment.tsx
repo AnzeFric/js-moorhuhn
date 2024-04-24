@@ -92,7 +92,6 @@ const GameEnvironment = () => {
                 //če ima kokoš grafiko jo izrišem in animiram
                 if (mob.sprite) {
                     drawSprite(ctx, mob);
-                    //fric je legenda
                 }
                 //če nima grafike jo izrišem kot kvadrat z barvo
                 else {
