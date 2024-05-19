@@ -4,7 +4,7 @@ interface MobType {
   size: number;
   speed: number;
   color: string;
-  revard?: number;
+  reward?: number;
   hit?: boolean;
   sprite?: {
     image?: any;

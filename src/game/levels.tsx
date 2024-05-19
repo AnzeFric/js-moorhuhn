@@ -10,7 +10,7 @@ const levels = {
                 size: 100,
                 speed: 30,
                 color: 'red',
-                revard: 10,
+                reward: 10,
                 sprite: {
                     spriteUrl: "chicken/64x64.png",
                     frameIndex: 0,
@@ -25,7 +25,7 @@ const levels = {
                 size: 100,
                 speed: 0,
                 color: 'red',
-                revard: -10,
+                reward: -10,
                 sprite: {
                     spriteUrl: "hedgehog/128x128.png",
                     frameIndex: 0,
@@ -40,7 +40,7 @@ const levels = {
                 size: 300,
                 speed: 0,
                 color: 'red',
-                revard: 10,
+                reward: 10,
                 sprite: {
                     spriteUrl: "chicken_front/256x256.png",
                     frameIndex: 0,

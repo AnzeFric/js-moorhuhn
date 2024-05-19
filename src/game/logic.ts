@@ -1,12 +1,13 @@
 import MobType from "../types/mobType";
 import LevelType from "../types/levelType";
-
+import MobFactory from "./MobFactory";
 type Listener = (mobs: MobType[], background: string) => void;
 
 class Game {
   public mobs: MobType[];
   private listeners: Listener[];
   private background: string;
+  private mobGenerator?: any;
 
   constructor() {
     this.mobs = [];
@@ -14,12 +15,15 @@ class Game {
     this.background = "white";
   }
 
-  spawnMob(mob: MobType): void {
-    if (mob.sprite) {
-      this.loadMobSprite(mob);
+  spawnMob(type: string): void {
+    const mob = MobFactory.createMob(type);
+    if (mob) {
+      if (mob.sprite) {
+        this.loadMobSprite(mob);
+      }
+      this.mobs.push(mob);
+      this.notify();
     }
-    this.mobs.push(mob);
-    this.notify();
   }
 
   updateMobs(deltaTime: number): void {
@@ -58,6 +62,29 @@ class Game {
       }
     };
     image.src = mob.sprite.spriteUrl;
+  }
+
+  startMobGenerator(interval: number = 2000): void {
+    this.mobGenerator = setInterval(() => {
+      const mobs = [
+        { type: "chicken", weight: 50 },
+        { type: "hedgehog", weight: 0 }, // Lower probability of spawning
+        { type: "bigChicken", weight: 5 }, // Even lower probability of spawning
+      ];
+      const totalWeight = mobs.reduce((total, mob) => total + mob.weight, 0);
+      let random = Math.random() * totalWeight;
+      let selectedType = "chicken"; // Default in rare case random exceeds logic
+
+      for (const mob of mobs) {
+        if (random < mob.weight) {
+          selectedType = mob.type;
+          break;
+        }
+        random -= mob.weight;
+      }
+
+      this.spawnMob(selectedType);
+    }, interval);
   }
 
   private notify(): void {

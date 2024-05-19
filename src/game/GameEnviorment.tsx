@@ -88,17 +88,19 @@ const GameEnvironment = () => {
         }
     }
 
+    //formatiram čas v format mm:ss
     function formatTime(seconds: number) {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
         return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
+    //izris petelina
     function drawCrosshair(ctx: CanvasRenderingContext2D, x: number, y: number) {
         if (crosshairImage.current.complete && crosshairImage.current.naturalWidth !== 0) {
             ctx.drawImage(
                 crosshairImage.current,
-                x - crosshairImage.current.width / 2,  // Center the crosshair on the cursor
+                x - crosshairImage.current.width / 2,
                 y - crosshairImage.current.height / 2
             );
         }
@@ -139,11 +141,12 @@ const GameEnvironment = () => {
 
         canvas.addEventListener('mousemove', handleMouseMove);
 
-        canvas.addEventListener('contextmenu', event => event.preventDefault()); // Prevent default context menu
         canvas.addEventListener('mousedown', handleRightClick);
         canvas.addEventListener('mousedown', handleLeftClick);
-        startCountdown();
 
+
+        startCountdown();
+        game.startMobGenerator(1000);
         const gameLoop = (timestamp: any) => {
             //resetiraj celoten kanvas (pobriši vse)
             ctx.clearRect(0, 0, width, height);
@@ -205,7 +208,7 @@ const GameEnvironment = () => {
     }, []);
 
     function handleLeftClick(event: { clientX: number; clientY: number; }) {
-        if (bulletCountRef.current === 0 && reloading) return;  // Prevent shooting if no bullets left
+        if (bulletCountRef.current === 0 || reloading) return;  // če ni metkov ali se polnijo ne streljaj
 
         const rect = canvasRef?.current?.getBoundingClientRect();
         const x = event.clientX - (rect?.left || 0);
@@ -214,7 +217,7 @@ const GameEnvironment = () => {
         gameRef.current.mobs.forEach(mob => {
             if (x >= mob.x && x <= mob.x + mob.size && y >= mob.y && y <= mob.y + mob.size) {
                 mob.hit = true; // kokos zadeta
-                pointsRef.current += mob.revard ?? 0;
+                pointsRef.current += mob.reward ?? 0;
             }
         });
 
@@ -224,28 +227,33 @@ const GameEnvironment = () => {
     }
 
     function handleRightClick(event: { button: number; preventDefault: () => void; }) {
-        if (event.button === 2) {  // Check if the right mouse button was clicked
-            event.preventDefault();  // Prevent the context menu
+        event.preventDefault();
+        if (event.button === 2) { // desni klik
             reloadGun();
         }
     }
     return (
-        <>
+        <div onContextMenu={(e) => e.preventDefault()}>
             {reloading && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    color: 'white',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    fontSize: '24px',
-                    zIndex: 1000
-                }}>
+                <div
+                    onClick={(event) => {
+                        event.preventDefault();
+                    }}
+                    style={{
+                        cursor: 'not-allowed',
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        color: 'white',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        fontSize: '24px',
+                        zIndex: 1000
+                    }}>
                     Reladam...
                 </div>
             )}
@@ -274,7 +282,7 @@ const GameEnvironment = () => {
                     backgroundRepeat: 'no-repeat'
 
                 }}></canvas>
-        </>
+        </div>
     );
 }
 
