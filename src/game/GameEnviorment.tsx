@@ -5,20 +5,21 @@ import Game from './logic';
 import LevelType from '../types/levelType';
 import MobType from '../types/mobType';
 import { useCountdown } from 'usehooks-ts'
-
+import { useNavigate } from 'react-router-dom';
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ')
 }
 
 const GameEnvironment = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const MAX_BULLETS = 5
+    const MAX_BULLETS = 9
     const { width = 0, height = 0 } = useWindowSize()
     const [background, setbackground] = useState<any>({
         color: "white",
         image: null
     });
-    const crosshairImage = useRef(new Image());  // Ref to hold the crosshair image
+    const navigate = useNavigate();
+    const crosshairImage = useRef(new Image());
     const [points, setPoints] = useState(0);
     const pointsRef = useRef(0);
     const [reloading, setReloading] = useState(false);
@@ -28,10 +29,10 @@ const GameEnvironment = () => {
             intervalMs: 1000,
         })
 
-    const [bulletCount, setBulletCount] = useState(5);
-    const bulletCountRef = useRef(5);
+    const [bulletCount, setBulletCount] = useState(MAX_BULLETS);
+    const bulletCountRef = useRef(MAX_BULLETS);
     // const { mobs, spawnMob, updateMobs, loadLevel } = useMobs(); 
-    const mousePosition = useRef({ x: 0, y: 0 });  // Using ref to hold the latest mouse position for access during animation frame
+    const mousePosition = useRef({ x: 0, y: 0 });
 
     const gameRef = useRef(new Game());
     function reloadGun() {
@@ -42,6 +43,12 @@ const GameEnvironment = () => {
             setReloading(false);
         }, 5000);
     }
+
+    useEffect(() => {
+        if (count === 0) {
+            navigate('/konec', { state: { points } });
+        }
+    }, [count]);
 
     function drawSprite(ctx: CanvasRenderingContext2D, mob: MobType) {
         const now = performance.now();
