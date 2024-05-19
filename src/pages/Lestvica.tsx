@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../Styles/lestvica_style.css';
+import { useLocalStorage } from 'usehooks-ts';
 
 const LestvicaPage = () => {
+  const [leaderboard] = useLocalStorage('leaderBoard', []);  // Retrieve the leaderboard from local storage
+
   return (
     <div className="con">
       <div className="crd">
@@ -17,24 +20,14 @@ const LestvicaPage = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1.</td>
-              <td>Žan Lah</td>
-              <td>400</td>
-              <td>1. 4. 2024</td>
-            </tr>
-            <tr>
-              <td>2.</td>
-              <td>Erik Pustoslemšek</td>
-              <td>250</td>
-              <td>1. 4. 2024</td>
-            </tr>
-            <tr>
-              <td>3.</td>
-              <td>Anže Fric</td>
-              <td>245</td>
-              <td>1. 4. 2024</td>
-            </tr>
+            {leaderboard.map((entry: { name: string, points: number, date: string }, index: number) => (
+              <tr key={index}>
+                <td>{index + 1}.</td>
+                <td>{entry.name}</td>
+                <td>{entry.points}</td>
+                <td>{entry.date}</td>  {/* Assuming each entry has a date */}
+              </tr>
+            ))}
           </tbody>
         </table>
         <Link to={'/'} className="back-button">nazaj</Link>
