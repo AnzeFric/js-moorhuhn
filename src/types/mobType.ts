@@ -4,6 +4,8 @@ interface MobType {
   size: number;
   speed: number;
   color: string;
+  revard?: number;
+  hit?: boolean;
   sprite?: {
     image?: any;
     spriteUrl: string;
@@ -11,6 +13,7 @@ interface MobType {
     totalFrames: number;
     frameRate: number;
     lastUpdate?: number;
+    mirror?: boolean;
   };
 }
 export default MobType;

@@ -5,36 +5,49 @@ const levels = {
         backgroundImg: 'forest-big.png',
         mobs: [
             {
-                x: 100, y: 100, size: 50, speed: 30, color: 'red',
+                x: 100,
+                y: 100,
+                size: 100,
+                speed: 30,
+                color: 'red',
+                revard: 10,
                 sprite: {
-                    spriteUrl: "bird.png",
+                    spriteUrl: "chicken/64x64.png",
                     frameIndex: 0,
-                    totalFrames: 3,
-                    frameRate: 10
+                    totalFrames: 12,
+                    frameRate: 24,
+                    mirror: true
                 }
             },
             {
-                x: 150, y: 200, size: 30, speed: 50, color: 'blue',
-            },
-            {
-                x: 250, y: 250, size: 30, speed: 10, color: 'red',
+                x: 300,
+                y: 400,
+                size: 300,
+                speed: 0,
+                color: 'red',
+                revard: 10,
                 sprite: {
-                    spriteUrl: "bird.png",
+                    spriteUrl: "chicken_front/256x256.png",
                     frameIndex: 0,
-                    totalFrames: 3,
-                    frameRate: 3
+                    totalFrames: 17,
+                    frameRate: 0,
+                    mirror: false
                 }
             },
             {
-                x: 400, y: 600, size: 30, speed: 5, color: 'green',
+                x: 0,
+                y: 300,
+                size: 100,
+                speed: 30,
+                color: 'red',
                 sprite: {
-                    spriteUrl: "bird.png",
+                    spriteUrl: "chicken/64x64.png",
                     frameIndex: 0,
-                    totalFrames: 3,
-                    frameRate: 5
+                    totalFrames: 12,
+                    frameRate: 24,
+                    mirror: true
                 }
-            }
-
+            },
         ]
     },
     level2: {

@@ -23,18 +23,15 @@ class Game {
   }
 
   updateMobs(deltaTime: number): void {
-    this.mobs = this.mobs.map((mob: MobType) => {
-      const updatedMob = {
-        ...mob,
-        x: mob.x + mob.speed * deltaTime,
-        y: mob.y,
-      };
-
-      if (mob.sprite) {
-        // this.updateAnimationFrame(mob.sprite, deltaTime);
-      }
-      return updatedMob;
-    });
+    // Filter out hit mobs before updating positions
+    this.mobs = this.mobs
+      .filter((mob) => !mob.hit)
+      .map((mob) => {
+        return {
+          ...mob,
+          x: mob.x + mob.speed * deltaTime, // update position based on speed and delta time
+        };
+      });
 
     this.notify();
   }
