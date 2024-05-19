@@ -20,6 +20,21 @@ const levels = {
                 }
             },
             {
+                x: 100,
+                y: 600,
+                size: 100,
+                speed: 0,
+                color: 'red',
+                revard: -10,
+                sprite: {
+                    spriteUrl: "hedgehog/128x128.png",
+                    frameIndex: 0,
+                    totalFrames: 1,
+                    frameRate: 0,
+                    mirror: true
+                }
+            },
+            {
                 x: 300,
                 y: 400,
                 size: 300,
@@ -40,6 +55,7 @@ const levels = {
                 size: 100,
                 speed: 30,
                 color: 'red',
+                revard: 10,
                 sprite: {
                     spriteUrl: "chicken/64x64.png",
                     frameIndex: 0,

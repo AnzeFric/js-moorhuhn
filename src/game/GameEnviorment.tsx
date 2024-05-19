@@ -5,8 +5,14 @@ import Game from './logic';
 import LevelType from '../types/levelType';
 import MobType from '../types/mobType';
 import { useCountdown } from 'usehooks-ts'
+
+function classNames(...classes: string[]) {
+    return classes.filter(Boolean).join(' ')
+}
+
 const GameEnvironment = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const MAX_BULLETS = 5
     const { width = 0, height = 0 } = useWindowSize()
     const [background, setbackground] = useState<any>({
         color: "white",
@@ -14,6 +20,8 @@ const GameEnvironment = () => {
     });
     const crosshairImage = useRef(new Image());  // Ref to hold the crosshair image
     const [points, setPoints] = useState(0);
+    const pointsRef = useRef(0);
+    const [reloading, setReloading] = useState(false);
     const [count, { startCountdown/*, stopCountdown, resetCountdown*/ }] =
         useCountdown({
             countStart: 60,
@@ -26,7 +34,14 @@ const GameEnvironment = () => {
     const mousePosition = useRef({ x: 0, y: 0 });  // Using ref to hold the latest mouse position for access during animation frame
 
     const gameRef = useRef(new Game());
-
+    function reloadGun() {
+        setBulletCount(MAX_BULLETS);
+        bulletCountRef.current = MAX_BULLETS;
+        setReloading(true);
+        setTimeout(() => {
+            setReloading(false);
+        }, 5000);
+    }
 
     function drawSprite(ctx: CanvasRenderingContext2D, mob: MobType) {
         const now = performance.now();
@@ -73,6 +88,11 @@ const GameEnvironment = () => {
         }
     }
 
+    function formatTime(seconds: number) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
 
     function drawCrosshair(ctx: CanvasRenderingContext2D, x: number, y: number) {
         if (crosshairImage.current.complete && crosshairImage.current.naturalWidth !== 0) {
@@ -118,7 +138,10 @@ const GameEnvironment = () => {
         let lastFrameTime = 0;
 
         canvas.addEventListener('mousemove', handleMouseMove);
-        canvas.addEventListener('click', handleClick);
+
+        canvas.addEventListener('contextmenu', event => event.preventDefault()); // Prevent default context menu
+        canvas.addEventListener('mousedown', handleRightClick);
+        canvas.addEventListener('mousedown', handleLeftClick);
         startCountdown();
 
         const gameLoop = (timestamp: any) => {
@@ -160,12 +183,6 @@ const GameEnvironment = () => {
             }
 
 
-            // Izrišem FPS vsak frame
-            ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, 100, 50);
-            ctx.fillStyle = 'white';
-            ctx.font = '16px Arial';
-            ctx.fillText(`FPS: ${fps}`, 10, 30);
 
 
             requestAnimationFrame(gameLoop);
@@ -180,36 +197,70 @@ const GameEnvironment = () => {
         return () => {
             cancelAnimationFrame(rafId);
             canvas.removeEventListener('mousemove', handleMouseMove);
-            canvas.removeEventListener('click', handleClick);
+            canvas.removeEventListener('contextmenu', event => event.preventDefault());
+            canvas.removeEventListener('mousedown', handleRightClick);
+            canvas.removeEventListener('mousedown', handleLeftClick);
+
         };
     }, []);
 
-    function handleClick(event: { clientX: number; clientY: number; }) {
-        if (bulletCountRef.current === 0) return;  // Prevent shooting if no bullets left
+    function handleLeftClick(event: { clientX: number; clientY: number; }) {
+        if (bulletCountRef.current === 0 && reloading) return;  // Prevent shooting if no bullets left
 
         const rect = canvasRef?.current?.getBoundingClientRect();
         const x = event.clientX - (rect?.left || 0);
         const y = event.clientY - (rect?.top || 0);
+
         gameRef.current.mobs.forEach(mob => {
             if (x >= mob.x && x <= mob.x + mob.size && y >= mob.y && y <= mob.y + mob.size) {
-                mob.hit = true; // Mark the mob as hit
+                mob.hit = true; // kokos zadeta
+                pointsRef.current += mob.revard ?? 0;
             }
         });
+
+        setPoints(pointsRef.current);
         bulletCountRef.current = Math.max(0, bulletCountRef.current - 1);
         setBulletCount(bulletCountRef.current);
     }
 
-
+    function handleRightClick(event: { button: number; preventDefault: () => void; }) {
+        if (event.button === 2) {  // Check if the right mouse button was clicked
+            event.preventDefault();  // Prevent the context menu
+            reloadGun();
+        }
+    }
     return (
         <>
-            <div className="fixed top-10 right-10">
-                {count}
+            {reloading && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    color: 'white',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    fontSize: '24px',
+                    zIndex: 1000
+                }}>
+                    Reladam...
+                </div>
+            )}
+            <div className="fixed top-5 left-5 text-white text-5xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(255,0,0,0.8)]">
+                {formatTime(count)}
             </div>
-            <div className="fixed top-300 right-20">
-                Bullets: {[...Array(bulletCount)].map((_, i) => <span key={i} className="bullet">🔴</span>)}
+            <div className="fixed bottom-10 right-10 selection-none ">
+                {[...Array(bulletCount)].map((_, i) => (
+
+                    <img key={i} height={200} className={classNames(" h-[150px]  w-[80px] inline-block object-cover bg-center")} src="bullet/128x128.png" alt="Bullet" />
+
+                ))}
 
             </div>
-            <div className="fixed top-10 right-20">
+            <div className="fixed top-10 right-10  text-yellow-500 text-6xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(255,0,0,0.8)]">
                 {points}
             </div>
             <canvas ref={canvasRef}
