@@ -4,8 +4,7 @@ import '../Styles/lestvica_style.css';
 import { useLocalStorage } from 'usehooks-ts';
 
 const LestvicaPage = () => {
-  const [leaderboard] = useLocalStorage('leaderBoard', []);  // Retrieve the leaderboard from local storage
-
+  const [leaderboard] = useLocalStorage('leaderBoard', []);
   return (
     <div className="con">
       <div className="crd">
@@ -25,7 +24,7 @@ const LestvicaPage = () => {
                 <td>{index + 1}.</td>
                 <td>{entry.name}</td>
                 <td>{entry.points}</td>
-                <td>{entry.date}</td>  {/* Assuming each entry has a date */}
+                <td>{entry.date}</td>
               </tr>
             ))}
           </tbody>

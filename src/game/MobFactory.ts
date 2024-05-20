@@ -3,21 +3,27 @@ export default class MobFactory {
   static createMob(type: string): MobType | null {
     const yRange = { min: 0, max: 650 };
     const sizeRange = { min: 50, max: 150 };
-    const speedRange = { min: 0, max: 30 };
 
     const randomInRange = (min: number, max: number): number => {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
+    const calculateReward = (size: number): number => {
+      if (size < 65) return 30;
+      if (size < 100) return 20;
+      return 10;
+    };
+
     switch (type) {
-      case "chicken":
+      case "chicken": {
+        const sizeChicken = randomInRange(sizeRange.min, sizeRange.max);
         return {
           x: -40,
           y: randomInRange(yRange.min, yRange.max),
-          size: randomInRange(sizeRange.min, sizeRange.max),
+          size: sizeChicken,
           speed: randomInRange(yRange.min, yRange.max),
           color: "red",
-          reward: 10,
+          reward: calculateReward(sizeChicken),
           sprite: {
             spriteUrl: "chicken/64x64.png",
             frameIndex: 0,
@@ -27,6 +33,7 @@ export default class MobFactory {
           },
           hit: false,
         };
+      }
       case "hedgehog":
         return {
           x: randomInRange(yRange.min, 1920),

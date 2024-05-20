@@ -72,17 +72,17 @@ const GameEnvironment = () => {
 
 
             if (sprite.mirror) {
-                ctx.save(); // Save the current context state
-                ctx.translate(mob.x + mob.size, mob.y); // Move to mob position and offset by its size to mirror around its center
-                ctx.scale(-1, 1); // Mirror horizontally
+                ctx.save();
+                ctx.translate(mob.x + mob.size, mob.y);
+                ctx.scale(-1, 1);
                 ctx.drawImage(
                     sprite.image,
                     frameX, 0,
                     frameWidth, frameHeight,
-                    0, 0, // Draw at the translated origin
+                    0, 0,
                     mob.size, mob.size
                 );
-                ctx.restore(); // Restore the context state
+                ctx.restore();
             } else {
                 ctx.drawImage(
                     sprite.image,
@@ -246,21 +246,8 @@ const GameEnvironment = () => {
                     onClick={(event) => {
                         event.preventDefault();
                     }}
-                    style={{
-                        cursor: 'not-allowed',
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        color: 'white',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        fontSize: '24px',
-                        zIndex: 1000
-                    }}>
+                    className="cursor-not-allowed fixed inset-0 w-full h-full bg-black bg-opacity-50 text-white flex justify-center items-center text-2xl z-50
+    ">
                     Reladam...
                 </div>
             )}

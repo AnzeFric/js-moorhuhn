@@ -11,7 +11,7 @@ const KonecPage = () => {
   const [name, setName] = useState('');
   function saveToLeaderboard() {
     if (!name) {
-      alert("Please enter your name.");
+      alert("Prosim vnesite svoje ime.");
       return;
     }
     const newEntry = { name, points, date: new Date().toLocaleString() };
@@ -23,7 +23,7 @@ const KonecPage = () => {
     navigate('/lestvica');
   }
   return (
-    <div className="container">
+    <div className="cnt">
       <div className="card">
         <div className="title">KONEC IGRE</div>
         <div className="points">{points} točk</div>
@@ -35,6 +35,7 @@ const KonecPage = () => {
           onChange={(e) => setName(e.target.value)}
         />
         <button className="button" onClick={saveToLeaderboard}>Shrani na lestvico</button>
+        <a className="button" href="/">Poskusi znova</a>
       </div>
     </div>
   );

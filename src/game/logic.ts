@@ -68,12 +68,12 @@ class Game {
     this.mobGenerator = setInterval(() => {
       const mobs = [
         { type: "chicken", weight: 50 },
-        { type: "hedgehog", weight: 0 }, // Lower probability of spawning
-        { type: "bigChicken", weight: 5 }, // Even lower probability of spawning
+        { type: "hedgehog", weight: 0 },
+        { type: "bigChicken", weight: 5 },
       ];
       const totalWeight = mobs.reduce((total, mob) => total + mob.weight, 0);
       let random = Math.random() * totalWeight;
-      let selectedType = "chicken"; // Default in rare case random exceeds logic
+      let selectedType = "chicken";
 
       for (const mob of mobs) {
         if (random < mob.weight) {
