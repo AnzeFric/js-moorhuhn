@@ -57,9 +57,10 @@ const GameEnvironment = () => {
 
     function drawSprite(ctx: CanvasRenderingContext2D, mob: MobType) {
         const now = performance.now();
+        const sprite = mob.hit ? mob.spriteShot : mob.sprite;
 
-        if (mob.sprite && mob.sprite.image) {
-            const sprite = mob.sprite;
+        if (sprite && sprite.image) {
+
             const frameWidth = sprite.image.width / sprite.totalFrames;
             const frameHeight = sprite.image.height;
 
@@ -67,9 +68,12 @@ const GameEnvironment = () => {
 
             if (sprite.frameRate > 0) {
                 const frameDelay = 1000 / sprite.frameRate;
-
                 if (now - sprite.lastUpdate > frameDelay) {
+                    sprite.frameIndex++;
                     sprite.frameIndex = (sprite.frameIndex + 1) % sprite.totalFrames;
+                    if (!sprite.continuous && sprite.frameIndex === 0) {
+                        sprite.frameIndex = sprite.totalFrames - 1;
+                    }
                     sprite.lastUpdate = now;
                 }
             }
@@ -171,7 +175,7 @@ const GameEnvironment = () => {
 
 
             //posodobi pozicije vseh kokoši
-            game.updateMobs(deltaTime);
+            game.updateMobs(deltaTime, ctx);
 
 
             //izriši vsako kokoš
@@ -227,11 +231,13 @@ const GameEnvironment = () => {
         const y = event.clientY - (rect?.top || 0);
 
         gameRef.current.mobs.forEach(mob => {
-            if (x >= mob.x && x <= mob.x + mob.size && y >= mob.y && y <= mob.y + mob.size) {
+            if (x >= mob.x && x <= mob.x + mob.size && y >= mob.y && y <= mob.y + mob.size && !mob.hit) {
                 mob.hit = true; // kokos zadeta
+
                 pointsRef.current += mob.reward ?? 0;
+
                 setHitMob(mob);
-                setHitPosition({ x: mob.x, y: mob.y - 30 }); // Set position slightly above the mob
+                setHitPosition({ x: mob.x, y: mob.y - 30 });
                 setPopupVisible(true);
 
                 if (popupTimeoutRef.current) {
@@ -287,7 +293,11 @@ const GameEnvironment = () => {
                     }}
                     className="cursor-not-allowed fixed inset-0 w-full h-full bg-black bg-opacity-50 text-white flex justify-center items-center text-2xl z-50
     ">
-                    Reladam...
+                    <div className="mt-6" aria-hidden="true">
+                        <div className="w-[300px] rounded-full bg-gray-200">
+                            <div className="h-5 bg-indigo-400 rounded-full reloading-bar" />
+                        </div>
+                    </div>
                 </div>
             )}
             <div className="fixed top-5 left-5 text-white text-5xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(255,0,0,0.8)]">

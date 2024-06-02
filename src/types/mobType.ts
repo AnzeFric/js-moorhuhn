@@ -8,6 +8,8 @@ interface MobType {
   hit?: boolean;
   creationTime?: number;
   durationToHide?: number;
+  isFalling?: boolean;
+  fallSpeed?: number;
   sprite?: {
     image?: any;
     spriteUrl: string;
@@ -16,6 +18,17 @@ interface MobType {
     frameRate: number;
     lastUpdate?: number;
     mirror?: boolean;
+    continuous: boolean | true;
+  };
+  spriteShot?: {
+    image?: any;
+    spriteUrl: string;
+    frameIndex: number;
+    totalFrames: number;
+    frameRate: number;
+    lastUpdate?: number;
+    mirror?: boolean;
+    continuous: boolean | true;
   };
 }
 export default MobType;

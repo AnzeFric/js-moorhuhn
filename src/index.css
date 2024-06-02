@@ -66,3 +66,16 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.reloading-bar {
+  animation: shrink 1s linear forwards; /* Ensures the animation completes and stays at the final state */
+}
