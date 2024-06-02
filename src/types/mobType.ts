@@ -6,6 +6,8 @@ interface MobType {
   color: string;
   reward?: number;
   hit?: boolean;
+  creationTime?: number;
+  durationToHide?: number;
   sprite?: {
     image?: any;
     spriteUrl: string;

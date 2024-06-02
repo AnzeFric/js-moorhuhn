@@ -21,15 +21,22 @@ class Game {
       if (mob.sprite) {
         this.loadMobSprite(mob);
       }
+      mob.creationTime = performance.now() || 0;
       this.mobs.push(mob);
       this.notify();
     }
   }
 
   updateMobs(deltaTime: number): void {
+    const currentTime = performance.now();
     // Filter out hit mobs before updating positions
     this.mobs = this.mobs
-      .filter((mob) => !mob.hit)
+      .filter(
+        (mob) =>
+          !mob.hit &&
+          ((mob.durationToHide ?? -1) < 0 ||
+            currentTime - (mob.creationTime ?? 0) < (mob.durationToHide ?? 0))
+      )
       .map((mob) => {
         return {
           ...mob,
@@ -69,7 +76,7 @@ class Game {
       const mobs = [
         { type: "chicken", weight: 50 },
         { type: "hedgehog", weight: 0 },
-        { type: "bigChicken", weight: 5 },
+        { type: "bigChicken", weight: 10 },
       ];
       const totalWeight = mobs.reduce((total, mob) => total + mob.weight, 0);
       let random = Math.random() * totalWeight;

@@ -35,13 +35,18 @@ const GameEnvironment = () => {
     const mousePosition = useRef({ x: 0, y: 0 });
 
     const gameRef = useRef(new Game());
+    const [popupVisible, setPopupVisible] = useState(false);
+    const [hitMob, setHitMob] = useState<MobType>();
+    const [hitPosition, setHitPosition] = useState({ x: 0, y: 0 });
+    const popupTimeoutRef = useRef<number | null>(null);
+
     function reloadGun() {
         setBulletCount(MAX_BULLETS);
         bulletCountRef.current = MAX_BULLETS;
         setReloading(true);
         setTimeout(() => {
             setReloading(false);
-        }, 5000);
+        }, 1000);
     }
 
     useEffect(() => {
@@ -153,7 +158,7 @@ const GameEnvironment = () => {
 
 
         startCountdown();
-        game.startMobGenerator(1000);
+        game.startMobGenerator(2000);
         const gameLoop = (timestamp: any) => {
             //resetiraj celoten kanvas (pobriši vse)
             ctx.clearRect(0, 0, width, height);
@@ -214,8 +219,8 @@ const GameEnvironment = () => {
         };
     }, []);
 
-    function handleLeftClick(event: { clientX: number; clientY: number; }) {
-        if (bulletCountRef.current === 0 || reloading) return;  // če ni metkov ali se polnijo ne streljaj
+    function handleLeftClick(event: { clientX: number; clientY: number; button: number }) {
+        if (bulletCountRef.current === 0 || reloading || event.button != 0) return;  // če ni metkov ali se polnijo ne streljaj
 
         const rect = canvasRef?.current?.getBoundingClientRect();
         const x = event.clientX - (rect?.left || 0);
@@ -225,6 +230,16 @@ const GameEnvironment = () => {
             if (x >= mob.x && x <= mob.x + mob.size && y >= mob.y && y <= mob.y + mob.size) {
                 mob.hit = true; // kokos zadeta
                 pointsRef.current += mob.reward ?? 0;
+                setHitMob(mob);
+                setHitPosition({ x: mob.x, y: mob.y - 30 }); // Set position slightly above the mob
+                setPopupVisible(true);
+
+                if (popupTimeoutRef.current) {
+                    clearTimeout(popupTimeoutRef.current);
+                }
+                popupTimeoutRef.current = setTimeout(() => {
+                    setPopupVisible(false);
+                }, 500); // skrij popup čez 500ms
             }
         });
 
@@ -239,6 +254,30 @@ const GameEnvironment = () => {
             reloadGun();
         }
     }
+
+    useEffect(() => {
+        return () => {
+            if (popupTimeoutRef.current) {
+                clearTimeout(popupTimeoutRef.current);
+            }
+        };
+    }, []);
+
+
+    const HitInfoPopup = ({ position }: any) => (
+        <div style={{
+            left: `${position.x}px`,
+            top: `${position.y}px`,
+
+            zIndex: 50
+        }} className="absolute rounded-md ">
+
+            {hitMob && <p className="text-yellow-400 font-black text-5xl">{(hitMob.reward ?? 0) > 0 ? "+" + hitMob.reward : hitMob.reward}</p>}
+
+        </div>
+    );
+
+
     return (
         <div onContextMenu={(e) => e.preventDefault()}>
             {reloading && (
@@ -265,6 +304,7 @@ const GameEnvironment = () => {
             <div className="fixed top-10 right-10  text-yellow-500 text-6xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(255,0,0,0.8)]">
                 {points}
             </div>
+            {popupVisible && <HitInfoPopup position={hitPosition} />}
             <canvas ref={canvasRef}
                 style={{
                     width: '100%',

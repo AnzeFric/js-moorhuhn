@@ -21,9 +21,10 @@ export default class MobFactory {
           x: -40,
           y: randomInRange(yRange.min, yRange.max),
           size: sizeChicken,
-          speed: randomInRange(yRange.min, yRange.max),
+          speed: randomInRange(30, 150),
           color: "red",
           reward: calculateReward(sizeChicken),
+
           sprite: {
             spriteUrl: "chicken/64x64.png",
             frameIndex: 0,
@@ -59,6 +60,7 @@ export default class MobFactory {
           speed: 0,
           color: "red",
           reward: 10,
+          durationToHide: 3000,
           sprite: {
             spriteUrl: "chicken_front/128x128.png",
             frameIndex: 0,
