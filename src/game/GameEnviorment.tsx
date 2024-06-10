@@ -12,6 +12,20 @@ function classNames(...classes: string[]) {
 
 const GameEnvironment = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    // const shotSound = useRef(new Audio('/sounds/gunshot.mp3')); 
+    const themeSound = useRef(new Audio('/sounds/song.mp3'));
+    const reload = useRef(new Audio('/sounds/reload.mp3'));
+    const leyorJenkins = useRef(new Audio('/sounds/leroy.mp3'));
+    const chickenSound = useRef(new Audio('/sounds/chicken.mp3'));
+    const metalHitSound = useRef(new Audio('/sounds/metalHit.mp3'));
+
+    leyorJenkins.current.volume = 1;
+    themeSound.current.volume = 0.4;
+    const audioInstances = useRef<any[]>([]);
+    audioInstances.current.push(leyorJenkins.current);
+    audioInstances.current.push(themeSound.current);
+
+    audioInstances.current.push(chickenSound.current);
     const MAX_BULLETS = 9
     const { width = 0, height = 0 } = useWindowSize()
     const [background, setbackground] = useState<any>({
@@ -41,6 +55,7 @@ const GameEnvironment = () => {
     const popupTimeoutRef = useRef<number | null>(null);
 
     function reloadGun() {
+        reload.current.play();
         setBulletCount(MAX_BULLETS);
         bulletCountRef.current = MAX_BULLETS;
         setReloading(true);
@@ -138,6 +153,10 @@ const GameEnvironment = () => {
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
+
+
+        themeSound.current.play();
+        leyorJenkins.current.play();
         const game = gameRef.current;
         crosshairImage.current.src = 'crosshair.png';
         // game.onStateChange(setMobs);
@@ -163,6 +182,7 @@ const GameEnvironment = () => {
 
         startCountdown();
         game.startMobGenerator(2000);
+
         const gameLoop = (timestamp: any) => {
             //resetiraj celoten kanvas (pobriši vse)
             ctx.clearRect(0, 0, width, height);
@@ -214,6 +234,10 @@ const GameEnvironment = () => {
 
         const rafId = requestAnimationFrame(gameLoop);
         return () => {
+            audioInstances.current.forEach(audio => {
+                audio.pause();  // Pause the audio
+                audio.currentTime = 0;  // Reset the playback position
+            });
             cancelAnimationFrame(rafId);
             canvas.removeEventListener('mousemove', handleMouseMove);
             canvas.removeEventListener('contextmenu', event => event.preventDefault());
@@ -230,8 +254,17 @@ const GameEnvironment = () => {
         const x = event.clientX - (rect?.left || 0);
         const y = event.clientY - (rect?.top || 0);
 
+        const audio = new Audio('/sounds/gunshot.mp3');
+        audio.play();
+        audioInstances.current.push(audio);
+
         gameRef.current.mobs.forEach(mob => {
             if (x >= mob.x && x <= mob.x + mob.size && y >= mob.y && y <= mob.y + mob.size && !mob.hit) {
+
+                const audio = new Audio('/sounds/metalHit.mp3');
+                audio.play();
+                audioInstances.current.push(audio);
+
                 mob.hit = true; // kokos zadeta
 
                 pointsRef.current += mob.reward ?? 0;
@@ -295,15 +328,15 @@ const GameEnvironment = () => {
     ">
                     <div className="mt-6" aria-hidden="true">
                         <div className="w-[300px] rounded-full bg-gray-200">
-                            <div className="h-5 bg-indigo-400 rounded-full reloading-bar" />
+                            <div className="h-5 bg-yellow-500 rounded-full reloading-bar" />
                         </div>
                     </div>
                 </div>
             )}
-            <div className="fixed top-5 left-5 text-white text-5xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(255,0,0,0.8)]">
+            <div className="fixed top-5 left-5 pointer-events-none text-white text-5xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(255,0,0,0.8)]">
                 {formatTime(count)}
             </div>
-            <div className="fixed bottom-10 right-10 selection-none ">
+            <div className="fixed bottom-10 right-10 selection-none pointer-events-none">
                 {[...Array(bulletCount)].map((_, i) => (
 
                     <img key={i} height={200} className={classNames(" h-[150px]  w-[80px] inline-block object-cover bg-center")} src="bullet/128x128.png" alt="Bullet" />
@@ -311,7 +344,7 @@ const GameEnvironment = () => {
                 ))}
 
             </div>
-            <div className="fixed top-10 right-10  text-yellow-500 text-6xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(255,0,0,0.8)]">
+            <div className="fixed top-10 right-10 pointer-events-none  text-yellow-500 text-6xl font-bold drop-shadow-[0_1.2px_1.2px_rgba(255,0,0,0.8)]">
                 {points}
             </div>
             {popupVisible && <HitInfoPopup position={hitPosition} />}

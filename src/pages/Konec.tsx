@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../Styles/konec_style.css';
 import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from 'usehooks-ts';
@@ -9,6 +9,8 @@ const KonecPage = () => {
   const { points } = location.state || { points: 0 };
   const [leaderboard, setLeaderboard] = useLocalStorage<{ name: string; points: number, date: string }[]>('leaderBoard', [])
   const [name, setName] = useState('');
+  const dramaticSound = useRef(new Audio('/sounds/dramatic.mp3'));
+
   function saveToLeaderboard() {
     if (!name) {
       alert("Prosim vnesite svoje ime.");
@@ -22,10 +24,18 @@ const KonecPage = () => {
     setName('');
     navigate('/lestvica');
   }
+
+  useEffect(() => {
+    dramaticSound.current.play();
+    return () => {
+      dramaticSound.current.pause();
+    }
+  }, []);
   return (
     <div className="cnt">
       <div className="card">
-        <div className="title">KONEC IGRE</div>
+        <div className='title-shadow text-6xl leading-24 font-bold drop-shadow-lg drop-shadow-red-600 text-[#fbee0f] mb-16 max-w-sm'>KONEC IGRE</div>
+
         <div className="points">{points} točk</div>
         <input
           className="input"
